@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SimpleMetrics.Model;
+using SimpleMetrics.Model.Database;
 using SimpleMetrics.Util;
 
 namespace SimpleMetrics.Server
@@ -70,6 +71,19 @@ namespace SimpleMetrics.Server
                 catch (Exception e)
                 {
                     // TODO: Log
+                    return;
+                }
+
+                using (var context = new MetricsContext())
+                {
+                    foreach (DatedCount count in serializedMetrics.Counts)
+                    {
+                        // Update DB
+                    }
+                    foreach (DatedDuration duration in serializedMetrics.Durations)
+                    {
+                        // Update DB
+                    }
                 }
             }
         }

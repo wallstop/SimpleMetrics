@@ -8,6 +8,7 @@ namespace SimpleMetrics.Model.TimeStamped
     public abstract class AbstractTimeStamped
     {
         [DataMember(Name = "TimeStamp")] private readonly DateTime timeStamp_;
+
         public DateTime TimeStamp => timeStamp_;
 
         protected AbstractTimeStamped()

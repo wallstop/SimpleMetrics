@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using SimpleMetrics.Model.Database;
 using SimpleMetrics.Model.TimeStamped;
 
 namespace SimpleMetrics.Model
@@ -10,10 +11,10 @@ namespace SimpleMetrics.Model
     [Serializable]
     public class Metrics : IDisposable
     {
+        [DataMember(Name = "Application")] private string application_;
         [DataMember(Name = "Counts")] private ConcurrentDictionary<string, StampedCount> counts_;
         [DataMember(Name = "Operation")] private string operation_;
-        [DataMember(Name = "Application")] private string application_;
-        [DataMember(Name = "TimeSpans")] private ConcurrentDictionary<string, StampedTimeSpan> timeSpans_;
+        [DataMember(Name = "TimeSpans")] private ConcurrentDictionary<string, StampedDuration> timeSpans_;
 
         public string Operation
         {
@@ -27,13 +28,20 @@ namespace SimpleMetrics.Model
             set { application_ = value; }
         }
 
-        public IEnumerable<KeyValuePair<string, StampedTimeSpan>> TimeSpans => timeSpans_.ToArray();
-        public IEnumerable<KeyValuePair<string, StampedCount>> Counts => counts_.ToArray();
+        public IEnumerable<DatedCount> Counts
+        {
+            get { return null /* TODO */; }
+        }
+
+        public IEnumerable<DatedDuration> Durations
+        {
+            get { return null /* TODO */; }
+        }
 
         public Metrics()
         {
             counts_ = new ConcurrentDictionary<string, StampedCount>();
-            timeSpans_ = new ConcurrentDictionary<string, StampedTimeSpan>();
+            timeSpans_ = new ConcurrentDictionary<string, StampedDuration>();
         }
 
         public void Dispose()
@@ -50,8 +58,8 @@ namespace SimpleMetrics.Model
 
         public void AddTime(string name, TimeSpan duration)
         {
-            StampedTimeSpan existingTimeSpan = timeSpans_.GetOrAdd(name, new StampedTimeSpan(TimeSpan.Zero));
-            existingTimeSpan.Add(duration);
+            StampedDuration existingDuration = timeSpans_.GetOrAdd(name, new StampedDuration(TimeSpan.Zero));
+            existingDuration.Add(duration);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace SimpleMetrics.Model.TimeStamped
 {
     [DataContract]
     [Serializable]
-    public class StampedTimeSpan : AbstractTimeStamped
+    public class StampedDuration : AbstractTimeStamped
     {
         private readonly ReaderWriterLockSlim lock_;
         [DataMember(Name = "TimeSpan")] private TimeSpan timeSpan_;
@@ -27,7 +27,7 @@ namespace SimpleMetrics.Model.TimeStamped
             }
         }
 
-        public StampedTimeSpan(TimeSpan duration)
+        public StampedDuration(TimeSpan duration)
         {
             // Should not be able to concurrently access an object during its creation...
             timeSpan_ = duration;
