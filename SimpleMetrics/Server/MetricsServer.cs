@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 using SimpleMetrics.Model;
 using SimpleMetrics.Model.Database;
 using SimpleMetrics.Util;
@@ -14,6 +15,7 @@ namespace SimpleMetrics.Server
 {
     public class MetricsServer
     {
+        private static readonly Logger LOG = LogManager.GetCurrentClassLogger();
         private readonly TcpListener socketListener_;
 
         public MetricsServer(short port)
@@ -51,7 +53,7 @@ namespace SimpleMetrics.Server
                     }
                     catch (Exception e)
                     {
-                        // TODO: Log, gracefully handle
+                        LOG.Error(e, "Caught unexpected exception while attempting to unpack network stream");
                         break;
                     }
 
@@ -70,19 +72,58 @@ namespace SimpleMetrics.Server
                 }
                 catch (Exception e)
                 {
-                    // TODO: Log
+                    LOG.Error(e, "Caught unexpected exception while attempting to deserialize {0}", allData);
                     return;
                 }
 
                 using (var context = new MetricsContext())
                 {
+                    // TODO: Make this not suck
                     foreach (DatedCount count in serializedMetrics.Counts)
                     {
-                        // Update DB
+                        Application application = count.Count.Operation.Application;
+                        if (!context.Applications.Contains(application))
+                        {
+                            context.Applications.Add(application);
+                        }
+                        Operation operation = count.Count.Operation;
+                        if (!context.Operations.Contains(operation))
+                        {
+                            context.Operations.Add(operation);
+                        }
+                        Count dbCount = count.Count;
+                        if (!context.Counts.Contains(dbCount))
+                        {
+                            context.Counts.Add(dbCount);
+                        }
+
+                        if (!context.DatedCounts.Contains(count))
+                        {
+                            context.DatedCounts.Add(count);
+                        }
                     }
                     foreach (DatedDuration duration in serializedMetrics.Durations)
                     {
-                        // Update DB
+                        Application application = duration.Duration.Operation.Application;
+                        if (!context.Applications.Contains(application))
+                        {
+                            context.Applications.Add(application);
+                        }
+                        Operation operation = duration.Duration.Operation;
+                        if (!context.Operations.Contains(operation))
+                        {
+                            context.Operations.Add(operation);
+                        }
+                        Duration dbDuration = duration.Duration;
+                        if (!context.Durations.Contains(dbDuration))
+                        {
+                            context.Durations.Add(dbDuration);
+                        }
+
+                        if (!context.DatedDurations.Contains(duration))
+                        {
+                            context.DatedDurations.Add(duration);
+                        }
                     }
                 }
             }

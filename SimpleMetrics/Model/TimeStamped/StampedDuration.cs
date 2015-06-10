@@ -9,16 +9,16 @@ namespace SimpleMetrics.Model.TimeStamped
     public class StampedDuration : AbstractTimeStamped
     {
         private readonly ReaderWriterLockSlim lock_;
-        [DataMember(Name = "TimeSpan")] private TimeSpan timeSpan_;
+        [DataMember(Name = "Duration")] private TimeSpan duration_;
 
-        public TimeSpan TimeSpan
+        public TimeSpan Duration
         {
             get
             {
                 lock_.EnterReadLock();
                 try
                 {
-                    return timeSpan_;
+                    return duration_;
                 }
                 finally
                 {
@@ -30,7 +30,7 @@ namespace SimpleMetrics.Model.TimeStamped
         public StampedDuration(TimeSpan duration)
         {
             // Should not be able to concurrently access an object during its creation...
-            timeSpan_ = duration;
+            duration_ = duration;
             lock_ = new ReaderWriterLockSlim();
         }
 
@@ -39,7 +39,7 @@ namespace SimpleMetrics.Model.TimeStamped
             lock_.EnterWriteLock();
             try
             {
-                timeSpan_ = timeSpan_.Add(duration);
+                duration_ = duration_.Add(duration);
             }
             finally
             {
